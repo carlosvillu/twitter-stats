@@ -18,8 +18,9 @@ Matrix.prototype.bestScore = function( /* null means all the matrix */ atColumn 
   best = this._matrix.reduce( function( memo, row, index_row ){
     return row.reduce( function( best, cell, index_cell ){
       var value = self._matrix[ index_row ][ index_cell ]; 
-      return best.value <=  value ? { row: index_row, cell: index_cell, value: value }
-                                  : best;
+      return atColumn && atColumn !== index_cell ? best
+                                                 : best.value <=  value ? { row: index_row, cell: index_cell, value: value }
+                                                                        : best;
     }, memo );
   }, {row: 0, cell: 0, value: 0} );
   return best.value !== 0 ? { range: RANGES[best.row][0], day: WEEK[best.cell], value: best.value }
