@@ -1,4 +1,5 @@
-var debug = require( 'debug' )( 'twtstats' ),
+var debug = require( 'debug' ),
+    verbose = debug( 'verbose:twtstats' ),
     path = require( 'path' ),
     readline = require('readline'),
     Stream = require('stream'),
@@ -21,10 +22,10 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
         date = twt[5];
     if( favs && retwts && date )
     {
-      //debug( "[%s]favs(%s) retweets(%s) date(%s)", twt[0], twt[4], twt[3], twt[5] );
+      verbose( "[%s]favs(%s) retweets(%s) date(%s)", twt[0], twt[4], twt[3], twt[5] );
       tweets[tweetsLength++] = new Tweet( retwts, favs, date );
     }
   } )
   .on( 'close', function(){
-    debug( "Tweets: %d", tweets.length );
+    verbose( "Tweets: %O", tweets );
   } );
