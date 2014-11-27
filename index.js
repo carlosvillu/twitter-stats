@@ -40,8 +40,9 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
   } )
   .on( 'close', function(){
 		var buckets = [],
-        matrixIndexRetwts, matrixIndexFavs, matrixIndexWeight,
-        bestScoreInWeekForRetwts, bestScoreInWeekForFavs, bestScoreInWeekForWeigth;
+        matrixIndexRetwts, matrixIndexFavs, matrixIndexWeight, matrixTwetsPerDayAndHour,
+        bestScoreInWeekForRetwts, bestScoreInWeekForFavs, bestScoreInWeekForWeigth, bestScoreInWeekForTwetsPerDayHour,
+        bestScoreNextDayForRetwts, bestScoreNextDayForFavs, bestScoreNextDayForWeigth, bestScoreNextDayForTwetsPerDayHour;
 
 		log( 'Sample %d tweets', tweets.length );
     verbose( "Tweets: %j", tweets );
@@ -52,14 +53,34 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
 		matrixIndexRetwts = new Matrix( stats.scale( stats.median( buckets, 'retwts' ) ), HOUR_RANGE, DAYS, 'Index Retwts' );
 		matrixIndexFavs = new Matrix( stats.scale( stats.median( buckets, 'favs' ) ), HOUR_RANGE, DAYS, 'Index Favs' );
 		matrixIndexWeight = new Matrix( stats.scale( stats.median( buckets, 'weight' ) ), HOUR_RANGE, DAYS, 'Index Weight' );
-		log( "\n%s\n\n%s\n\n%s\n", matrixIndexRetwts.print(), matrixIndexFavs.print(), matrixIndexWeight.print() );
 
-    bestScoreInWeekForRetwts = matrixIndexRetwts.bestScore() 
-    bestScoreInWeekForFavs = matrixIndexFavs.bestScore() 
-    bestScoreInWeekForWeigth = matrixIndexWeight.bestScore() 
-    log( "On %s. at %s is optimal combination to get retwts", bestScoreInWeekForRetwts.day, bestScoreInWeekForRetwts.range );
-    log( "On %s. at %s is optimal combination to get favs", bestScoreInWeekForFavs.day, bestScoreInWeekForFavs.range );
-    log( "On %s. at %s is optimal combination to get the best tweets", bestScoreInWeekForWeigth.day, bestScoreInWeekForWeigth.range );
+    bestScoreInWeekForRetwts = matrixIndexRetwts.bestScore();
+    bestScoreInWeekForFavs = matrixIndexFavs.bestScore();
+    bestScoreInWeekForWeigth = matrixIndexWeight.bestScore(); 
 
+    bestScoreNextDayForRetwts = matrixIndexRetwts.bestScore( ( new Date().getDay() + 1 ) % DAYS );
+    bestScoreNextDayForFavs = matrixIndexRetwts.bestScore( ( new Date().getDay() + 1 ) % DAYS );
+    bestScoreNextDayForWeigth = matrixIndexRetwts.bestScore( ( new Date().getDay() + 1 ) % DAYS );
+
+    //BONUS: When the people is more active in twitter  
+    matrixTwetsPerDayAndHour = new Matrix( buckets.map( function( bucket ){ return bucket.length } ), HOUR_RANGE, DAYS, 'Tweets Per Day/Hour (Bonus)' );
+    bestScoreInWeekForTwetsPerDayHour = matrixTwetsPerDayAndHour.bestScore();
+    bestScoreNextDayForTwetsPerDayHour = matrixTwetsPerDayAndHour.bestScore( ( new Date().getDay() + 1 ) % DAYS );
+
+    log( "\n%s\n", matrixIndexRetwts.print() );
+    log( "On %s. at %s is the optimal combination to get retwts", bestScoreInWeekForRetwts.day, bestScoreInWeekForRetwts.range );
+    log( "Tomorrow %s. at %s is the optimal combination to get retwts", bestScoreNextDayForRetwts.day, bestScoreNextDayForRetwts.range );
+
+    log( "\n%s\n", matrixIndexFavs.print() );
+    log( "On %s. at %s is the optimal combination to get favs", bestScoreInWeekForFavs.day, bestScoreInWeekForFavs.range );
+    log( "Tomorrow %s. at %s is the optimal combination to get favs", bestScoreNextDayForFavs.day, bestScoreNextDayForFavs.range );
+
+    log( "\n%s\n", matrixIndexWeight.print() );
+    log( "On %s. at %s is the optimal combination to get the best tweets", bestScoreInWeekForWeigth.day, bestScoreInWeekForWeigth.range );
+    log( "Tomorrow %s. at %s is the optimal combination to get the best tweets", bestScoreNextDayForWeigth.day, bestScoreNextDayForWeigth.range );
+
+    log( "\n%s\n", matrixTwetsPerDayAndHour.print() );
+    log( "On %s. at %s the people is more active in twitter", bestScoreInWeekForTwetsPerDayHour.day, bestScoreInWeekForTwetsPerDayHour.range );
+    log( "Tomorrow %s. at %s the people is more active in twitter", bestScoreNextDayForTwetsPerDayHour.day, bestScoreNextDayForTwetsPerDayHour.range );
 
   } );
