@@ -7,6 +7,11 @@ Tweet = function( retwts, favs, date ){
   this._favs = favs;
   this._range = this.__rangeFromDate( date );
   this._day = this.__dayFromDate( date )
+	this._weight = favs + ( 2 * retwts ); // Retwt are more important than the favs
+};
+
+Tweet.prototype.attr = function( key ){
+	return this[ '_' + key ] || null;
 };
 
 /**
