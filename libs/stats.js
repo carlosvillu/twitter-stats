@@ -3,19 +3,20 @@ var debug = require( 'debug' ),
 		numbers = require( 'numbers' ),
     log = debug( 'twtstats:libs:stats' );
 
+var HOUR_RANGE = 4;
+
 module.exports = {
 	distribution: function( twts, buckets ){
 		buckets = twts.reduce( function(buckets, twt ){
 			var day = twt.attr( 'day' ),
 					range = twt.attr( 'range' ),
-					index = parseInt( '' + ( ( day * 4 ) + range ), 10  ),
+					index = parseInt( '' + ( ( day * HOUR_RANGE ) + range ), 10  ),
 					bucket = buckets[ index ];
-			verbose( 'index %d', index );
-			verbose( 'Distribution %j',buckets );	verbose( "Bucket %d => %j", parseInt( day + range, 10  ), bucket );
 
 			bucket.push( twt );
 			buckets[ index ] = bucket;
 			return buckets;
+
 		}, buckets );
 
 		verbose( 'Distribution %j',buckets );

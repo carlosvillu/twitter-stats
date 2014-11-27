@@ -1,5 +1,4 @@
 var debug = require( 'debug' ),
-		sparkly = require( 'sparkly' ),
     verbose = debug( 'twtstats-verbose' ),
     log = debug( 'twtstats:main' ),
     path = require( 'path' ),
@@ -12,6 +11,9 @@ var debug = require( 'debug' ),
     tweets = [],
     tweetsLength = 0,
     inStream, outStream;
+
+var DAYS = 7,
+    HOUR_RANGE = 4;
 
 outStream = new Stream();
 outStream.readable = true;
@@ -35,33 +37,18 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
   } )
   .on( 'close', function(){
 		var buckets = [],
-				twts_per_bucket = [],
-				retwts_per_bucket = [],
-				favs_per_bucket = [],
-				weight_per_bucket = [],
-				median_retwts_per_bucket = [],
-				index_retwts_per_bucket = [];
+        matrixIndexRetwts, matrixIndexFavs, matrixIndexWeight;
 
 		log( 'Sample %d tweets', tweets.length );
     verbose( "Tweets: %j", tweets );
 
-		buckets = stats.distribution( tweets, Array.apply(null, /*7 Days X 4 Hours_Rage*/ Array( 28 ) ).map( function(){ return []; } ) );
-		twts_per_bucket = buckets.map( function( bucket ){ return bucket.length; } );
-		retwts_per_bucket = stats.acc( buckets, 'retwts' );
-		favs_per_bucket = stats.acc( buckets, 'favs' );
-		weight_per_bucket = stats.acc( buckets, 'weight' );
-		log( "Twts per buckets %j", twts_per_bucket );
-		log( "ReTwts per buckets %j", retwts_per_bucket );
-		log( "Favs per buckets %j", favs_per_bucket );
-		log( "Weight per buckets %j", weight_per_bucket );
+		buckets = stats.distribution( tweets, Array.apply(null, /*7 Days X 4 Hours_Rage*/ Array( DAYS * HOUR_RANGE ) ).map( function(){ return []; } ) );
 
-		median_retwts_per_bucket = stats.median( buckets, 'retwts' );
-		index_retwts_per_bucket = stats.scale( median_retwts_per_bucket );
-		log( 'Median Retwts per buckets %j', median_retwts_per_bucket );
-		log( 'Index Retwts per buckets %j', index_retwts_per_bucket );
-
-		matrix = new Matrix( index_retwts_per_bucket, 4, 7, 'Index Retwts' );
-		log( "\n %s", matrix.print() );
+    // To create the matrix first I get the median using a specific key. After that, percentages are calculated using the max. value in the array. 
+		matrixIndexRetwts = new Matrix( stats.scale( stats.median( buckets, 'retwts' ) ), HOUR_RANGE, DAYS, 'Index Retwts' );
+		matrixIndexFavs = new Matrix( stats.scale( stats.median( buckets, 'favs' ) ), HOUR_RANGE, DAYS, 'Index Favs' );
+		matrixIndexWeight = new Matrix( stats.scale( stats.median( buckets, 'weight' ) ), HOUR_RANGE, DAYS, 'Index Weight' );
+		log( "\n\n%s\n\n%s\n\n%s\n", matrixIndexRetwts.print(), matrixIndexFavs.print(), matrixIndexWeight.print() );
 
 
   } );

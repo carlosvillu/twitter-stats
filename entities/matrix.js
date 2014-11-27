@@ -32,7 +32,7 @@ Matrix.prototype.__fillMatrix = function( list ){
 	var self = this;
 	this._matrix.forEach( function( row, index_row ){
 		row.forEach( function( cell, index_cell ){
-			var index = parseInt( '' + ( ( index_cell * 4 ) + index_row ), 10  );
+			var index = parseInt( '' + ( ( index_cell * self._matrix.length ) + index_row ), 10  );
 			self._matrix[ index_row ][ index_cell ] = list[ index ];
 		} );
 	} );
