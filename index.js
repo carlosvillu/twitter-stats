@@ -3,6 +3,7 @@ var debug = require( 'debug' ),
     log = debug( 'twtstats:main' ),
     path = require( 'path' ),
     readline = require('readline'),
+    request = require( 'request' ),
     Stream = require('stream'),
     fs = require( 'fs' ),
     Tweet = require( './entities/tweet' ),
@@ -13,12 +14,14 @@ var debug = require( 'debug' ),
     inStream, outStream;
 
 var DAYS = 7,
-    HOUR_RANGE = 4;
+    HOUR_RANGE = 4,
+    URL_CSV = process.env.URL_CSV || null;
 
 outStream = new Stream();
 outStream.readable = true;
 outStream.writable = true;
-inStream = fs.createReadStream( path.join( __dirname, 'db',  'blackfriday2013.csv' ) );
+inStream = URL_CSV ? request.get( URL_CSV ) 
+                   : fs.createReadStream( path.join( __dirname, 'db',  'blackfriday2013.csv' ) );
 
 readline.createInterface( { input: inStream, output: outStream, terminal: false} )
   .on( 'line', function( line ){
@@ -48,7 +51,7 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
 		matrixIndexRetwts = new Matrix( stats.scale( stats.median( buckets, 'retwts' ) ), HOUR_RANGE, DAYS, 'Index Retwts' );
 		matrixIndexFavs = new Matrix( stats.scale( stats.median( buckets, 'favs' ) ), HOUR_RANGE, DAYS, 'Index Favs' );
 		matrixIndexWeight = new Matrix( stats.scale( stats.median( buckets, 'weight' ) ), HOUR_RANGE, DAYS, 'Index Weight' );
-		log( "\n\n%s\n\n%s\n\n%s\n", matrixIndexRetwts.print(), matrixIndexFavs.print(), matrixIndexWeight.print() );
+		log( "\n%s\n\n%s\n\n%s\n", matrixIndexRetwts.print(), matrixIndexFavs.print(), matrixIndexWeight.print() );
 
 
   } );
