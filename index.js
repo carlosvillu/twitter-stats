@@ -40,7 +40,8 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
   } )
   .on( 'close', function(){
 		var buckets = [],
-        matrixIndexRetwts, matrixIndexFavs, matrixIndexWeight;
+        matrixIndexRetwts, matrixIndexFavs, matrixIndexWeight,
+        bestScoreInWeekForRetwts, bestScoreInWeekForFavs, bestScoreInWeekForWeigth;
 
 		log( 'Sample %d tweets', tweets.length );
     verbose( "Tweets: %j", tweets );
@@ -52,6 +53,13 @@ readline.createInterface( { input: inStream, output: outStream, terminal: false}
 		matrixIndexFavs = new Matrix( stats.scale( stats.median( buckets, 'favs' ) ), HOUR_RANGE, DAYS, 'Index Favs' );
 		matrixIndexWeight = new Matrix( stats.scale( stats.median( buckets, 'weight' ) ), HOUR_RANGE, DAYS, 'Index Weight' );
 		log( "\n%s\n\n%s\n\n%s\n", matrixIndexRetwts.print(), matrixIndexFavs.print(), matrixIndexWeight.print() );
+
+    bestScoreInWeekForRetwts = matrixIndexRetwts.bestScore() 
+    bestScoreInWeekForFavs = matrixIndexFavs.bestScore() 
+    bestScoreInWeekForWeigth = matrixIndexWeight.bestScore() 
+    log( "On %s. at %s is optimal combination to get retwts", bestScoreInWeekForRetwts.day, bestScoreInWeekForRetwts.range );
+    log( "On %s. at %s is optimal combination to get favs", bestScoreInWeekForFavs.day, bestScoreInWeekForFavs.range );
+    log( "On %s. at %s is optimal combination to get the best tweets", bestScoreInWeekForWeigth.day, bestScoreInWeekForWeigth.range );
 
 
   } );
