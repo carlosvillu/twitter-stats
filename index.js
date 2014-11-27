@@ -12,11 +12,11 @@ var debug = require( 'debug' ),
 outStream = new Stream();
 outStream.readable = true;
 outStream.writable = true;
-inStream = fs.createReadStream( path.join( __dirname, 'db',  'blackfriday2013.csv' ) ); 
+inStream = fs.createReadStream( path.join( __dirname, 'db',  'blackfriday2013.csv' ) );
 
 readline.createInterface( { input: inStream, output: outStream, terminal: false} )
   .on( 'line', function( line ){
-    var twt = line.split( /\t/ ),
+    var twt = line.split( /,/ ),
         favs = parseInt( twt[4], 10 ),
         retwts = parseInt( twt[3], 10 )
         date = twt[5];
